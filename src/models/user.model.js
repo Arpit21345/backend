@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
 import bcrypt from "bcrypt"
 import { Jwt } from "jsonwebtoken";
 
@@ -36,7 +36,7 @@ import { Jwt } from "jsonwebtoken";
         type:String,//cloud url
     },
     waatchHistory: [
-        { type: mongoose.Schema.types.ObjectId,
+        { type: Schema.types.ObjectId,
         ref: "Video"
         }
     ],
@@ -52,7 +52,7 @@ import { Jwt } from "jsonwebtoken";
  },{timestamps:true})
 
  userSchema.pre("save", async function (next){
-    if(!this.Modified("password")) return next()
+    if(!this.isModified("password")) return next()
     this.password = bcrypt.hash(this.password,10)
     next()
  })
