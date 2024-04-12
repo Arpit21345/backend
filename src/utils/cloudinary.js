@@ -1,30 +1,50 @@
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
+import {v2 as cloudinary} from "cloudinary"
+import fs from "fs"
+
 
 cloudinary.config({ 
-  cloud_name: `${process.env.CLOUDINARY_CLOUD_NAME}`, 
-  api_key: `${process.env.CLOUDINARY_API_KEY}`, 
-  api_secret: `${process.env.CLOUDINARY_API_SECRET}` 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_CLOUD_KEY, 
+  api_secret: process.env.CLOUDINARY_CLOUD_SECRET 
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
-  try {
-    if (!localFilePath) return null;
-    // Upload the file on cloudinary
-    const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto"
-    });
-    // File has been uploaded successfully
-    console.log("File is uploaded on Cloudinary", response.url);
-    return response;
-  } catch (error) {
     try {
-      fs.unlinkSync(localFilePath);
-      // Remove the locally stored file as the upload operation failed
-    } catch (err) {
-      console.error("Error removing local file:", err);
+        if (!localFilePath) return null
+        //upload the file on cloudinary
+        const response = await cloudinary.uploader.upload(localFilePath, {
+            resource_type: "auto"
+        })
+        // file has been uploaded successfull
+        //console.log("file is uploaded on cloudinary ", response.url);
+        // Asynchronously delete the local temporary file
+        fs.unlinkSync(localFilePath, (err) => {
+
+            //if error this might be the error remove sync
+            if (err) {
+                console.error("Error deleting local file:", err);
+            } else {
+                console.log("Local file deleted successfully:", localFilePath);
+            }
+        });
+        return response;
+    } catch (error) {
+        console.error("Error uploading file to Cloudinary:", error);
+
+        // Remove the locally saved temporary file as the upload operation failed
+        // fs.unlink(localFilePath, (err) => {
+        //     if (err) {
+        //         console.error("Error deleting local file:", err);
+        //     } else {
+        //         console.log("Local file deleted successfully:", localFilePath);
+        //     }
+        // });
+
+        return null;
     }
-    return null;
-  }
 };
+
+
+
+
 export default uploadOnCloudinary

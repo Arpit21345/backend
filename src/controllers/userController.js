@@ -35,37 +35,45 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid email address");
     }
     // operators 
-    const existedUser= User.findOne({
+    const existedUser= await User.findOne({
         $or:[{username},{ email }]
      })
      if (existedUser){
         throw new ApiError(409, "User with email or username already exists")
      }
      const avatarLocalPath = req.files?.avatar[0]?.path;
-     const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    //  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+     let coverImageLocalPath;
+     if (req.files && Array.isArray(req.files.coverImage) &&
+     req.files.coverImage.length>0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+     }
      if (!avatarLocalPath){
         throw new ApiError(400, "Avatar file is required")
 
      }
-     const avatar = await uploadOnCloudinary(avatarLocalPath)
-     const coverImage = await uploadOnCloudinary
-     (coverImageLocalPath)
-     if (!avatar) {
-        throw new ApiError(400, "Avatar file is required")
-
+     
+     const avatar = await uploadOnCloudinary(avatarLocalPath);
+     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+     if (!avatar || !coverImage) {
+         throw new ApiError(400, "Failed to upload avatar or cover image");
      }
-     User.create(
+     
+     const avatarUrl = avatar.url;
+     const coverImageUrl = coverImage.url;
+     
+    let createdUser = await User.create(
         {
-          Fullname,
-          avatar: avatar.url,
-          coverImage :coverImage?.url || "",
+          fullName,
+          avatar: avatarUrl,
+          coverImage :coverImageUrl || "",
           email,
           password,
-          username: username.toLowerCase
+          username: username.toLowerCase()
 
         }
      )
-     const createdUser = await User.findById(user._id).select(
+     createdUser = await User.findById(createdUser._id).select(
         "-password -refreshToken"
      )
      if(!createdUser){
