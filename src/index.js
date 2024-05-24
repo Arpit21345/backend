@@ -7,7 +7,7 @@ import app from "./app.js"; // Importing app from app.js
 dotenv.config({
     path: './.env'
 });
-
+// npm run dev is command to run
 const server = express();
 
 connectDB()
