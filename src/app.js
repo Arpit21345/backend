@@ -16,6 +16,7 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 // Use the user router
+// npm run dev
 app.use("/api/v1/users", userRouter);
 
 // http://localhost:8000/api/v1/users/register

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {   
+  "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack"
